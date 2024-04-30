@@ -8,6 +8,7 @@
     // np::ArrayCpu<float> backward(np::ArrayCpu<int>&dOut);
 
 ReluLayer::ReluLayer(){
+    ;
 }
 ReluLayer::ReluLayer(const ReluLayer&L){
     this->cache=L.cache;
@@ -19,16 +20,13 @@ np::ArrayCpu<float> ReluLayer::forward(np::ArrayCpu<float>&X,const std::string &
     if(mode=="train"){
         this->cache=X;
     }
-
-    return np::maximum<float>(X,0.0f);
+    
+    auto out= np::maximum<float>(X,0.0f);
+    return X;
 
 }
 np::ArrayCpu<float> ReluLayer::operator()(np::ArrayCpu<float>&X,const std::string &mode){
-    if(mode=="train"){
-        this->cache=X;
-    }
-
-    return np::maximum<float>(X,0.0f);
+    return this->forward(X,mode);
 
 }
 np::ArrayCpu<float> ReluLayer::backward(np::ArrayCpu<float>&dOut){

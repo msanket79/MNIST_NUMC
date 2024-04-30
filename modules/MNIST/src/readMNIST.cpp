@@ -1,88 +1,78 @@
-#include <MNIST/readMNIST.hpp>
+#include<MNIST/readMNIST.hpp>
 
-#include <iostream>
-#include <fstream>
-#include <string>
+#include<iostream>
+#include<fstream>
+#include<string>
 
 typedef unsigned char uchar;
+// we are using reverseint because when MNIST was created many of UNIX systems used bigendian format for storing data hence it is in big endian so we have to reverse to get the exact value
+inline int reverseInt(const int i){
+    uchar u1,u2,u3,u4;
+    u1=i & 255;
+    u2=(i>>8)&255;
+    u3=(i>>16)&255;
+    u4=(i>>24)&255;
+    return ((int)u1<<24)+((int)u2 <<16)+((int)u3<<8)+u4;
 
-int reverseInt(int i)
-{
-    unsigned char c1, c2, c3, c4;
-    c1 = i & 255, c2 = (i >> 8) & 255, c3 = (i >> 16) & 255, c4 = (i >> 24) & 255;
-    return ((int)c1 << 24) + ((int)c2 << 16) + ((int)c3 << 8) + c4;
 }
 
-// reading mnist images from file.
-uchar *readMNISTImages(std::string &path, int &num_images, int &img_size)
-{
-    std::ifstream file(path, std::ios::binary);
+uchar* readMNISTImages(const std::string &path,int &num_images,int& img_size){
+    std::ifstream file(path,std::ios::binary);
+    
+    if(file.is_open()){
+        int magic_no=0,rows=0,cols=0;
+        file.read((char*)&magic_no,sizeof(magic_no));
+        file.read((char*)&num_images,sizeof(num_images));
+        file.read((char*)&rows,sizeof(rows));
+        file.read((char*)&cols,sizeof(cols));
+        magic_no=reverseInt(magic_no);
+        // reading the number of images
+        num_images=reverseInt(num_images);
+        // reading the rows of a image 24*24
+        rows=reverseInt(rows);
+        // reading the no of columns in a image  24*24
+        cols=reverseInt(cols);
 
-    if (file.is_open())
-    {
-        int magic_number = 0, n_rows = 0, n_cols = 0;
-
-        file.read((char *)&magic_number, sizeof(magic_number)); 
-        magic_number = reverseInt(magic_number);
-
-        if (magic_number != 2051)
-        {
-            std::cerr << "Invalid MNIST image file!\n";
+        if(magic_no != 2051){
+            std::cout<<"Not a valid MNIST file\n";
             return NULL;
         }
-
-        file.read((char *)&num_images, sizeof(num_images));
-        num_images = reverseInt(num_images);
-
-        file.read((char *)&n_rows, sizeof(n_rows)), n_rows = reverseInt(n_rows);
-        file.read((char *)&n_cols, sizeof(n_cols)), n_cols = reverseInt(n_cols);
-
-        img_size = n_rows * n_cols;
-
-        uchar *_dataset = new uchar[num_images * img_size];
-
-        file.read(reinterpret_cast<char *>(_dataset), num_images * img_size);
-
-        return _dataset;
+        img_size=rows*cols;
+        uchar* dataset=new uchar[num_images*img_size];
+        file.read(reinterpret_cast<char*>(dataset),num_images*img_size);
+        file.close();
+        return dataset;
     }
-    else
-    {
-        std::cerr << "Cannot open file `" << path << "`!\n";
-        return NULL;
+    else{
+        std::cout<<"Cannot open file "<<path<<std::endl;
+
     }
 }
+uchar* readMNISTLabels(const std::string &path,int &num_labels){
+    std::ifstream file(path,std::ios::binary);
+    
+    if(file.is_open()){
+        int magic_no=0,rows=0,cols=0;
+        file.read((char*)&magic_no,sizeof(magic_no));
+        file.read((char*)&num_labels,sizeof(num_labels));
 
-// reading mnist labels from file.
-uchar *readMNISTLabels(std::string &path, int &num_labels)
-{
+        magic_no=reverseInt(magic_no);
+        num_labels=reverseInt(num_labels);
 
-    std::ifstream file(path, std::ios::binary);
-
-    if (file.is_open())
-    {
-        int magic_number = 0;
-        file.read((char *)&magic_number, sizeof(magic_number));
-        magic_number = reverseInt(magic_number);
-
-        if (magic_number != 2049)
-        {
-            std::cerr << "Invalid MNIST label file!\n";
+        if(magic_no != 2049){
+            std::cout<<"Not a valid MNIST  label file\n";
             return NULL;
         }
-
-        file.read((char *)&num_labels, sizeof(num_labels));
-        num_labels = reverseInt(num_labels);
-
-        uchar *_dataset = new uchar[num_labels];
-        for (int i = 0; i < num_labels; i++)
-        {
-            file.read((char *)&_dataset[i], 1);
+        uchar* dataset=new uchar[num_labels];
+        for(int i=0;i<num_labels;i++){
+            
+        file.read(reinterpret_cast<char*>(&dataset[i]),1);
         }
-        return _dataset;
+         file.close();
+        return dataset;
     }
-    else
-    {
-        std::cerr << "Unable to open file `" << path << "`!\n";
-        return NULL;
+    else{
+        std::cout<<"Cannot open file "<<path<<std::endl;
+
     }
 }

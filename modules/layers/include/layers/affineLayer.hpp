@@ -1,8 +1,8 @@
 #ifndef AFFINELAYER_HPP
-#define AFFINELAER_HPP
+#define AFFINELAYER_HPP
 
 
-#include "layers/layer.hpp"
+#include<layers/layer.hpp>
 #include<numC/npArrayCpu.hpp>
 
 

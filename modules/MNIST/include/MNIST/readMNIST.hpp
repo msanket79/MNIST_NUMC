@@ -1,16 +1,10 @@
-#ifndef MNISTREAD_HPP
-#define MNISTREAD_HPP
+#ifndef READ_MNIST_HPP
+#define READ_MNIST_HPP
 
-#include <string>
-
+#include<string>
 typedef unsigned char uchar;
-
-int reverseInt(int i);
-
-// read images from file 
-uchar* readMNISTImages(std::string &path, int &num_images, int &img_size);
-
-// read labels from file
-uchar* readMNISTLabels(std::string &path, int &num_labels);
+int reverseInt(const int I);
+uchar* readMNISTImages(const std::string &path,int &num_images,int& img_size);
+uchar* readMNISTLabels(const std::string &path,int &num_labels);
 
 #endif

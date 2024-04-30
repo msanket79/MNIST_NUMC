@@ -1,7 +1,7 @@
 #ifndef LAYER_HPP
 #define LAYER_HPP
 
-#include "numC/npArrayCpu.hpp"
+#include<numC/npArrayCpu.hpp>
 
 // layers prototype
 class Layer{

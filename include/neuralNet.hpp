@@ -1,51 +1,57 @@
 #ifndef NEURALNET_HPP
 #define NEURALNET_HPP
-
 #include<layers/affineLayer.hpp>
 #include<layers/dropoutLayer.hpp>
 #include<layers/reluLayer.hpp>
 
-// loss function
 #include<lossFunctions/softmax.hpp>
-
 #include<optimizers/adam.hpp>
 
 #include<numC/npArrayCpu.hpp>
-
 #include<string>
 #include<vector>
 
 class NeuralNet{
     public:
-    std::vector<AffineLayer> affine_Layers;
-    std::vector<ReluLayer> relu_Layers;
-    std::vector<DropoutLayer>dropout_layers;
-    std::vector<AdamOptimizer> adam_configs;
-
+    // layer1 
+    AffineLayer l1;
+    // layer 2
+    DropoutLayer l2;
+    // layer 3
+    ReluLayer l3;
+    //layer 4
+    AffineLayer l4;
+    // std::vector<AdamOptimizer> adam_configs;
+    AdamOptimizer l1_w;
+    AdamOptimizer l1_b;
+    AdamOptimizer l4_w;
+    AdamOptimizer l4_b;
+    // eval | train
     std::string mode;
-
-    NeuralNet(const float reg=0.0,float p_keep=1.0);
-    NeuralNet(NeuralNet&N);
+    NeuralNet(const float p_keep=1.0);
+    NeuralNet(const NeuralNet&N);
     void operator=(const NeuralNet&N);
-
     void train();
-    void test();
+    void eval();
 
+    // foward pass (used in eval mode to only return the output)
+    np::ArrayCpu<float> forward( np::ArrayCpu<float>&X);
+    // used in train mode returns out and loss
+    std::pair<np::ArrayCpu<float>,np::ArrayCpu<float>> forward( np::ArrayCpu<float>&X, np::ArrayCpu<int>&Y);
 
-    np::ArrayCpu<float> forward(const np::ArrayCpu<float> &X);
+    //now overloading for forward pass
 
+    // foward pass (used in eval mode to only return the output)
+    np::ArrayCpu<float> operator()( np::ArrayCpu<float>&X);
+    // used in train mode returns out and loss
+    std::pair<np::ArrayCpu<float>,np::ArrayCpu<float>> operator()( np::ArrayCpu<float>&X, np::ArrayCpu<int>&Y);
 
-    std::pair<np::ArrayCpu<float>, np::ArrayCpu<float>> forward(const np::ArrayCpu<float> &X, const np::ArrayCpu<int> &y);
-
-    np::ArrayCpu<float> operator()(const np::ArrayCpu<float> &X);
-    std::pair<np::ArrayCpu<float>, np::ArrayCpu<float>> operator()(const np::ArrayCpu<float> &X, const np::ArrayCpu<int> &y);
-
-    np::ArrayCpu<float> backward(np::ArrayCpu<float> &dout);
+    np::ArrayCpu<float> backward(np::ArrayCpu<float>&dOut);
 
 
     void adamStep();
 
-}
 
 
+};
 #endif
